@@ -1,0 +1,398 @@
+[
+  {
+    "id": "TC001",
+    "title": "Successful phone number OTP login",
+    "description": "Verify that a user can input a valid phone number, receive an OTP, enter the correct OTP, and successfully authenticate to the home screen.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the app and navigate to the phone number login screen."
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid phone number and submit."
+      },
+      {
+        "type": "action",
+        "description": "Wait to receive an OTP code."
+      },
+      {
+        "type": "action",
+        "description": "Enter the received OTP code on the verification screen."
+      },
+      {
+        "type": "assertion",
+        "description": "User is successfully authenticated and redirected to the home screen."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Invalid phone number input handling",
+    "description": "Check that the login screen validates phone number format and shows appropriate error messages for invalid inputs.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the phone number login screen."
+      },
+      {
+        "type": "action",
+        "description": "Input an invalid phone number (e.g., letters, too short, or too long) and submit."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate that a relevant error message displays preventing submission."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Incorrect OTP verification fails",
+    "description": "Verify that entering an incorrect OTP code results in appropriate error notification and no authentication.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Enter a valid phone number to trigger OTP sending."
+      },
+      {
+        "type": "action",
+        "description": "Enter an incorrect OTP code on the verification screen."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that an error message is shown and user remains on OTP verification screen."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Multi-page onboarding flow completion",
+    "description": "Ensure user can navigate through all onboarding pages with animated transitions and that completion status is stored.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Launch the app for the first time and view the onboarding screens."
+      },
+      {
+        "type": "action",
+        "description": "Navigate through all onboarding pages via next buttons observing animations."
+      },
+      {
+        "type": "action",
+        "description": "Complete the onboarding by reaching the final page."
+      },
+      {
+        "type": "assertion",
+        "description": "Onboarding completion status is saved locally."
+      },
+      {
+        "type": "action",
+        "description": "Restart the app."
+      },
+      {
+        "type": "assertion",
+        "description": "User is routed past onboarding to login screen directly."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Onboarding skip functionality",
+    "description": "Verify that users can skip the onboarding flow and that skip state is persisted so onboarding does not show again.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the app on first launch."
+      },
+      {
+        "type": "action",
+        "description": "Press the skip button on the onboarding screens."
+      },
+      {
+        "type": "assertion",
+        "description": "User is redirected to the login screen."
+      },
+      {
+        "type": "action",
+        "description": "Restart the app."
+      },
+      {
+        "type": "assertion",
+        "description": "Onboarding screens do not show and user is routed to login."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Home screen service category display",
+    "description": "Validate that the home screen displays exactly 12 predefined service categories in a grid as expected.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Authenticate and land on the home screen."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a grid layout exists showing 12 service categories: Plumber, Electrician, Cleaning, Mechanic, Hair/Beauty, Painting, Moving, Gardening, Tech Repair, Laundry, Delivery, Vet/Pet."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Home screen search functionality with valid input",
+    "description": "Validate that user can enter keywords in the search bar to find matching services.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "On home screen, enter a valid service keyword in the search bar."
+      },
+      {
+        "type": "action",
+        "description": "Submit the search query."
+      },
+      {
+        "type": "assertion",
+        "description": "Results relevant to the search query are displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Home screen search with no matching results",
+    "description": "Verify that entering search terms with no matching services shows appropriate empty state or message.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Enter a search query with no matching services."
+      },
+      {
+        "type": "action",
+        "description": "Submit the search."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that a 'No results found' message or equivalent empty state is displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Profile update persists new full name",
+    "description": "Verify that a user can update their full name in profile and the change is saved and reflected on subsequent app launches.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the profile section."
+      },
+      {
+        "type": "action",
+        "description": "Update the full name field with a new valid name."
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Updated name is shown in profile immediately."
+      },
+      {
+        "type": "action",
+        "description": "Restart the app and navigate to profile."
+      },
+      {
+        "type": "assertion",
+        "description": "The updated full name persists and is displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Profile update handles invalid inputs gracefully",
+    "description": "Check that invalid profile input (e.g., empty name) is rejected with proper validation messages.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Go to profile edit screen."
+      },
+      {
+        "type": "action",
+        "description": "Clear or enter invalid input in full name field."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to save changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Validation error is shown and changes are not saved."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Service list fetched and sorted alphabetically",
+    "description": "Verify that the services fetched from the backend are displayed in alphabetical order on service lists or provider dashboards.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access service list or provider dashboard screen."
+      },
+      {
+        "type": "assertion",
+        "description": "Services are displayed sorted alphabetically by their name."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Admin dashboard loads with platform data",
+    "description": "Ensure admin users accessing the admin dashboard can see relevant platform management data loaded correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an admin user."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Relevant platform data like user stats, services, bookings are fetched and displayed correctly without errors."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Provider dashboard service and bookings management",
+    "description": "Verify service providers can view their services and bookings and perform management operations as expected.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a service provider."
+      },
+      {
+        "type": "action",
+        "description": "Go to the provider dashboard screen."
+      },
+      {
+        "type": "assertion",
+        "description": "Service list and booking data are loaded correctly."
+      },
+      {
+        "type": "action",
+        "description": "Perform standard management actions permitted (e.g., view booking details)."
+      },
+      {
+        "type": "assertion",
+        "description": "Actions complete without errors and UI updates accordingly."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Zellij background renders correctly across different screen sizes",
+    "description": "Validate the custom Moroccan Zellij tile background renders consistently and without distortion across multiple device resolutions and orientations.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the app home screen on multiple devices or emulators with different screen sizes."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that the Zellij background pattern is rendered fully, with correct proportions, no clipping or misalignment."
+      },
+      {
+        "type": "action",
+        "description": "Rotate devices between portrait and landscape."
+      },
+      {
+        "type": "assertion",
+        "description": "Zellij background adapts to orientation changes maintaining visual consistency."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Application theme colors and typography load correctly",
+    "description": "Verify the Moroccan-inspired Material Design 3 theme, gradients, and Google Fonts text styling load correctly and consistently throughout the app.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Launch the app and navigate through all major screens."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that the color palette (red, blue, yellow, green) applies properly to UI components such as buttons, text, banners, and navigation."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate that Google Fonts used for texts render properly without fallback fonts."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "App initialization correctly sets up Supabase and routes user",
+    "description": "Verify the app initializes Supabase client properly, sets up provider-based state management, and routes user based on onboarding and authentication state.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Launch app on a fresh install (no onboarding completed, no login)."
+      },
+      {
+        "type": "assertion",
+        "description": "User is routed to onboarding screens."
+      },
+      {
+        "type": "action",
+        "description": "Complete onboarding and launch again."
+      },
+      {
+        "type": "assertion",
+        "description": "User is routed to login screen."
+      },
+      {
+        "type": "action",
+        "description": "Simulate a logged-in user session and relaunch app."
+      },
+      {
+        "type": "assertion",
+        "description": "User is routed directly to home screen."
+      }
+    ]
+  }
+]

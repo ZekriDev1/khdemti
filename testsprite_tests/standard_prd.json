@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "project": "khdemti",
+    "date": "2026-01-29",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "khdemti is a Flutter-based mobile application designed to connect users with a variety of local service providers offering categories such as plumbing, electrical work, cleaning, and more. The app features a seamless phone-based OTP authentication, multi-page onboarding, service discovery with search and category browsing, user profile management, and dedicated dashboards for service providers and admins. Moroccan cultural aesthetics are integrated via a custom Zellij background and a distinct color palette.",
+  "core_goals": [
+    "Provide users with an easy and secure phone-based authentication system.",
+    "Deliver a smooth onboarding experience for first-time app users.",
+    "Enable users to discover, search, and book various local services efficiently.",
+    "Allow users to manage their profiles including updating personal information and avatar.",
+    "Offer service providers and admins specialized dashboards to manage services, bookings, and platform administration.",
+    "Incorporate a unique Moroccan-inspired visual theme to enhance branding and user experience."
+  ],
+  "key_features": [
+    "Phone-based OTP authentication using Supabase Auth with login and OTP verification screens.",
+    "Multi-page onboarding flow with animated transitions and skip functionality storing completion status locally.",
+    "Home screen with a search bar, grid of 12 predefined service categories, promotional banners, and bottom navigation for Home, Bookings, Chat, and Profile.",
+    "Custom Moroccan-inspired theme using Material Design 3 and Google Fonts, including gradients and color palette.",
+    "Zellij Background Widget rendering traditional Moroccan geometric tile patterns using CustomPainter.",
+    "User profile CRUD operations with data persistence in Supabase backend.",
+    "Service management fetching services from Supabase and listing them alphabetically.",
+    "Dedicated Admin Dashboard for platform super admin users.",
+    "Provider Dashboard allowing service providers to manage services and bookings.",
+    "App-wide constants for configuration and app metadata.",
+    "Robust app initialization handling Supabase setup and user state routing from onboarding to home."
+  ],
+  "user_flow_summary": [
+    "New users open the app and are guided through a multi-page onboarding process with the option to skip.",
+    "Users proceed to phone number login screen and enter their phone number to receive an OTP.",
+    "Upon receiving OTP, users input it to verify and authenticate their account.",
+    "Authenticated users land on the home screen where they can explore service categories, search for services, and navigate through the app via the bottom navigation bar.",
+    "Users can access and update their profile details including full name and avatar image.",
+    "Service providers and admins access their respective dashboards to manage services, bookings, and platform settings.",
+    "The Zellij background provides consistent Moroccan visual branding throughout user interactions."
+  ],
+  "validation_criteria": [
+    "Successful phone OTP authentication with correct transitions between login and verification screens.",
+    "Onboarding completion state accurately stored and respected, allowing skip for returning users.",
+    "Home screen displays correct service categories, search functionality, and promotional banners.",
+    "Profile updates are reflected and persisted correctly in the Supabase backend.",
+    "Admin and Provider dashboards load with relevant data and allow management of services and bookings.",
+    "Theme and Zellij background render correctly across different devices maintaining visual consistency.",
+    "App initializes Supabase and provider state management correctly and routes users based on authentication and onboarding status."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "Dart",
+      "Flutter",
+      "Supabase",
+      "Provider",
+      "Material Design 3"
+    ],
+    "features": [
+      {
+        "name": "Authentication System",
+        "description": "Phone-based OTP authentication system using Supabase Auth. Includes login screen with phone number input, OTP verification screen, and authentication state management.",
+        "files": [
+          "lib/screens/auth/login_screen.dart",
+          "lib/screens/auth/verify_otp_screen.dart",
+          "lib/providers/auth_provider.dart",
+          "lib/services/supabase_service.dart"
+        ]
+      },
+      {
+        "name": "Onboarding Flow",
+        "description": "Multi-page onboarding experience for first-time users with animated transitions and skip functionality. Stores onboarding completion status in SharedPreferences.",
+        "files": [
+          "lib/screens/onboarding/onboarding_screen.dart"
+        ]
+      },
+      {
+        "name": "Home Screen",
+        "description": "Main home screen with service discovery interface. Features search functionality, service categories grid, promotional banners, and bottom navigation bar with Home, Bookings, Chat, and Profile sections.",
+        "files": [
+          "lib/screens/home/home_screen.dart",
+          "lib/utils/data.dart"
+        ]
+      },
+      {
+        "name": "Theme System",
+        "description": "Custom theme configuration with Moroccan-inspired color palette (red, blue, yellow, green). Includes Material Design 3 theming, custom text styles using Google Fonts, and gradient definitions.",
+        "files": [
+          "lib/utils/theme.dart"
+        ]
+      },
+      {
+        "name": "Zellij Background Widget",
+        "description": "Custom decorative background widget that renders traditional Moroccan Zellij (geometric tile) pattern using CustomPainter. Provides visual branding throughout the app.",
+        "files": [
+          "lib/widgets/zellij_background.dart"
+        ]
+      },
+      {
+        "name": "Service Categories",
+        "description": "Service category data model and predefined list of 12 service categories including Plumber, Electrician, Cleaning, Mechanic, Hair/Beauty, Painting, Moving, Gardening, Tech Repair, Laundry, Delivery, and Vet/Pet services.",
+        "files": [
+          "lib/utils/data.dart"
+        ]
+      },
+      {
+        "name": "User Profile Management",
+        "description": "User profile CRUD operations including fetching user profile from Supabase profiles table, and updating profile with full name and avatar URL.",
+        "files": [
+          "lib/services/supabase_service.dart"
+        ]
+      },
+      {
+        "name": "Service Management",
+        "description": "Service data operations to fetch and list services from Supabase services table, ordered by name.",
+        "files": [
+          "lib/services/supabase_service.dart"
+        ]
+      },
+      {
+        "name": "Admin Dashboard",
+        "description": "Admin interface screen for super admin users to manage the platform.",
+        "files": [
+          "lib/screens/admin/admin_dashboard.dart"
+        ]
+      },
+      {
+        "name": "Provider Dashboard",
+        "description": "Service provider dashboard interface for service providers to manage their services and bookings.",
+        "files": [
+          "lib/screens/provider/provider_dashboard.dart"
+        ]
+      },
+      {
+        "name": "App Constants",
+        "description": "Application-wide constants including Supabase configuration (URL and anon key), app name, and admin phone number.",
+        "files": [
+          "lib/utils/constants.dart"
+        ]
+      },
+      {
+        "name": "App Initialization",
+        "description": "Main application entry point with Supabase initialization, Provider setup for state management, and authentication wrapper that handles routing between onboarding, login, and home screens based on user state.",
+        "files": [
+          "lib/main.dart"
+        ]
+      }
+    ]
+  }
+}

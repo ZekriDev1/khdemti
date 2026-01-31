@@ -1,0 +1,16 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:55372",
+  "executionArgs": {
+    "projectName": "khdemti",
+    "projectPath": "C:\\Users\\ZEKRI\\Documents\\khdemti\\khdemti",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-6h1wxW5GJTCngDqHsDWPlzJhKAUvAlYcA5RHR2U41CNn713AdE1aKmh6hG4t-FELkmGFOoUjSVaGYgx20ludUHiB5fQi-rKL7a2189qn20NT0JpMflYWWd742EcV6ZPuNok"
+    }
+  },
+  "proxy": "http://e0e29047-dd93-4a4f-aedb-f0901d5f12e1:YqtQ3lBWCf7Y7o9FpA3qwkLbSegOYKhw@tun.testsprite.com:8080"
+}
