@@ -12,7 +12,12 @@
           "package_name": "com.zekri.khdemti"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "137053449392-tdeqhv9t2s0j03vaposhvrc5c83to1or.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAP1OLtlPJyekJNMKi8k81AUaEP4jw-LWc"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "137053449392-tdeqhv9t2s0j03vaposhvrc5c83to1or.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "137053449392-q7gvj74fomb11qfqcdktvj8ma2va0ds1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zekri.khdemti"
+              }
+            }
+          ]
         }
       }
     }

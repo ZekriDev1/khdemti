@@ -36,6 +36,25 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
   <title>khdemti</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCRWwfL9pVT1-DGZVPKshcbBTwldZmVOac",
+      authDomain: "khdemti-ma.firebaseapp.com",
+      projectId: "khdemti-ma",
+      storageBucket: "khdemti-ma.firebasestorage.app",
+      messagingSenderId: "137053449392",
+      appId: "1:137053449392:web:7502b4e79c308afe235f75",
+      measurementId: "G-1L9WTDC4WB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
 </head>
 
 <body>
