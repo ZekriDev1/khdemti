@@ -87,7 +87,9 @@ class _ServiceProvidersScreenState extends State<ServiceProvidersScreen> {
                       final name = p.fullName ?? 'Provider';
                       final isOnline = p.isOnline;
 
-                      return AppleCard(
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: AppleCard(
                         onTap: () {
                             Navigator.push(
                               context,
@@ -155,6 +157,7 @@ class _ServiceProvidersScreenState extends State<ServiceProvidersScreen> {
                             const Icon(Icons.chevron_right, color: Colors.grey),
                           ],
                         ),
+                      ),
                       ).animate().fadeIn(delay: (100 * index).ms).slideY(begin: 0.1, end: 0);
                     },
                   ),

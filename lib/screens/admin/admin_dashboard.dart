@@ -4,6 +4,7 @@ import '../../utils/theme.dart';
 import '../../utils/data.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/zellij_background.dart';
+import '../../models/user_model.dart'; // Add this import
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -16,7 +17,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
   late TabController _tabController;
   final SupabaseService _service = SupabaseService();
 
-  List<Map<String, dynamic>> _users = [];
+  List<UserModel> _users = []; // Changed from List<Map<String, dynamic>>
   List<Map<String, dynamic>> _bookings = [];
   bool _isLoading = true;
 
@@ -31,14 +32,12 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
     setState(() => _isLoading = true);
     try {
       _users = await _service.getAllUsers();
-      _bookings = await _service.getAllBookings();
+      _bookings = await _service.getAllBookings(); // We need to add this method to SupabaseService
     } catch (e) {
       debugPrint('Admin load error: ' + e.toString());
     }
     setState(() => _isLoading = false);
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +83,8 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
   }
 
   Widget _buildOverview() {
-    final customers = _users.where((u) => u['role'] == 'customer').length;
-    final providers = _users.where((u) => u['role'] == 'provider').length;
+    final customers = _users.where((u) => u.role == UserRole.customer).length; // Updated for UserModel
+    final providers = _users.where((u) => u.role == UserRole.provider).length; // Updated for UserModel
     final pending = _bookings.where((b) => b['status'] == 'pending').length;
     final completed = _bookings.where((b) => b['status'] == 'completed').length;
 
@@ -162,33 +161,33 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
         itemCount: _users.length,
         itemBuilder: (context, index) {
           final user = _users[index];
-          final rating = user['manual_rating'] ?? 0.0;
+          final rating = user.rating ?? 0.0; // Updated for UserModel
           
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: _getRoleColor(user['role']),
-                child: Text((user['full_name'] ?? 'U')[0].toUpperCase(), style: const TextStyle(color: Colors.white)),
+                backgroundColor: _getRoleColor(user.role),
+                child: Text((user.fullName ?? 'U')[0].toUpperCase(), style: const TextStyle(color: Colors.white)),
               ),
-              title: Text(user['full_name'] ?? 'Unknown'),
+              title: Text(user.fullName ?? 'Unknown'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(user['phone'] ?? ''),
-                  if (user['age'] != null) Text('Age: ' + user['age'].toString()),
-                  if (user['role'] == 'provider') 
+                  Text(user.phone ?? ''),
+                  if (user.age != null) Text('Age: ' + user.age.toString()),
+                  if (user.role == UserRole.provider) 
                     Row(children: [const Icon(Icons.star, size: 14, color: Colors.amber), Text(' ' + rating.toString())]),
                 ],
               ),
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _getRoleColor(user['role']).withOpacity(0.1),
+                  color: _getRoleColor(user.role).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(user['role'] ?? 'unknown', style: TextStyle(color: _getRoleColor(user['role']), fontWeight: FontWeight.bold)),
+                child: Text(user.role.name, style: TextStyle(color: _getRoleColor(user.role), fontWeight: FontWeight.bold)),
               ),
             ),
           ).animate().fadeIn(delay: (30 * index).ms);
@@ -283,12 +282,12 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
     }
   }
 
-  Color _getRoleColor(String? role) {
+  Color _getRoleColor(UserRole? role) { // Updated for UserModel
     switch (role) {
-      case 'admin':
-      case 'super_admin':
+      case UserRole.admin:
+      case UserRole.super_admin:
         return AppTheme.primaryRedDark;
-      case 'provider':
+      case UserRole.provider:
         return AppTheme.emeraldGreen;
       default:
         return AppTheme.cobaltBlue;
@@ -342,7 +341,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
     if (dateStr == null) return '';
     try {
       final date = DateTime.parse(dateStr);
-      return '//';
+      return '${date.day}/${date.month} ${date.hour}:${date.minute}';
     } catch (e) {
       return dateStr;
     }

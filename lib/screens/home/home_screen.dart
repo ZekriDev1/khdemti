@@ -14,7 +14,7 @@ import '../../services/supabase_service.dart';
 import 'search_screen.dart';
 import 'bookings_screen.dart';
 import 'chat_screen.dart';
-import '../profile/profile_screen.dart'; // Ensuring correct import
+import 'profile_screen.dart'; // Correct import
 import 'urgent_help_screen.dart';
 import 'service_providers_screen.dart';
 import 'notifications_screen.dart';

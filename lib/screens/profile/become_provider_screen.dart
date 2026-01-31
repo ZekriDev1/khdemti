@@ -4,6 +4,7 @@ import '../../utils/theme.dart';
 import '../../utils/data.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/premium_ui.dart';
+import '../../models/user_model.dart';
 
 class BecomeProviderScreen extends StatefulWidget {
   const BecomeProviderScreen({super.key});
@@ -39,14 +40,34 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
       final user = service.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      // 1. Update Profile
-      await service.upsertProfile({
-        'role': 'provider',
-        'full_name': _nameController.text,
-        'age': int.tryParse(_ageController.text),
-        'bio': _bioController.text,
-        // We handle phone via auth usually, but can update it here.
-      });
+      // 1. Update Profile (using UserModel)
+      // Since upsertProfile expects a full UserModel, we first fetch the existing one if possible or create a new one with available data.
+      // But upsertProfile uses current user ID. We can just pass the fields we want to update if we change the service method,
+      // OR we can fetch-then-update.
+      
+      var currentProfile = await service.getUserProfile();
+      if (currentProfile == null) {
+          // Should not happen if logged in, but handle anyway
+          currentProfile = UserModel(
+            id: user.id,
+            email: user.email ?? '',
+            role: UserRole.provider,
+            fullName: _nameController.text,
+            age: int.tryParse(_ageController.text),
+            bio: _bioController.text,
+            createdAt: DateTime.now(), // Added missing required parameter
+          );
+      } else {
+         // Update existing profile fields
+         currentProfile = currentProfile.copyWith(
+           role: UserRole.provider,
+           fullName: _nameController.text,
+           age: int.tryParse(_ageController.text),
+           bio: _bioController.text,
+         );
+      }
+
+      await service.upsertProfile(currentProfile!); // Added ! to assert non-null
 
       // 2. Add Service Link
       // We need to manually insert into provider_services. 

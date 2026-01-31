@@ -61,7 +61,9 @@ class FavoritesScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProviderDetailScreen(
-                                providerData: provider.toJson(), // Temporary bridge
+                                provider: provider, 
+                                serviceId: 'favorite', // Placeholder/Generic service ID context
+                                serviceName: 'Favorite', // Placeholder
                               ),
                             ),
                           );
