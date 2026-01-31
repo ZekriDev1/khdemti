@@ -148,12 +148,36 @@ class _HomeContent extends StatelessWidget {
                                   builder: (context, auth, _) {
                                     final profile = auth.profile;
                                     final name = profile?.fullName?.split(' ').first ?? "Marhba";
+                                    final isDemoMode = auth.isDemoMode;
 
                                     return Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text("Hello, $name 👋", 
-                                          style: GoogleFonts.outfit(color: AppTheme.primaryRedDark, fontSize: 18, fontWeight: FontWeight.w500)),
+                                        Row(
+                                          children: [
+                                            Text("Hello, $name 👋", 
+                                              style: GoogleFonts.outfit(color: AppTheme.primaryRedDark, fontSize: 18, fontWeight: FontWeight.w500)),
+                                            if (isDemoMode) ...[
+                                              const SizedBox(width: 8),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.amber.withOpacity(0.2),
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  border: Border.all(color: Colors.amber),
+                                                ),
+                                                child: const Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(Icons.warning_amber_rounded, size: 12, color: Colors.amber),
+                                                    SizedBox(width: 4),
+                                                    Text("Demo", style: TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold)),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
                                         Text(
                                           "Find a Service",
                                           style: GoogleFonts.outfit(color: Colors.black87, fontSize: 32, fontWeight: FontWeight.w800),

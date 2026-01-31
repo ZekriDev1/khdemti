@@ -9,6 +9,7 @@ import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/auth/start_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
 
@@ -64,12 +65,12 @@ class AuthWrapper extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         // Check authentication status
-        final isLoggedIn = auth.user != null || auth.isAdmin;
+        final isLoggedIn = auth.user != null || auth.isAdmin || auth.isDemoMode;
 
         if (isLoggedIn) {
           return const HomeScreen();
         } else {
-          return const WelcomeScreen();
+          return const StartScreen();
         }
       },
     );
