@@ -1,38 +1,47 @@
-name: iOS-ipa-build
+name: iOS-IPA-Build
 
 on:
   workflow_dispatch:
 
 jobs:
   build-ios:
-    name: 🎉 iOS Build
+    name: 🎉 Build iOS IPA for Sideloadly
     runs-on: macos-latest
+
     steps:
+      # 1️⃣ Checkout your repo
       - uses: actions/checkout@v3
 
+      # 2️⃣ Set up Flutter
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           architecture: x64
 
+      # 3️⃣ Get Flutter dependencies
       - run: flutter pub get
 
+      # 4️⃣ Update CocoaPods repos
       - run: pod repo update
         working-directory: ios
 
+      # 5️⃣ Build iOS app without signing (for Sideloadly)
       - run: flutter build ios --release --no-codesign
 
+      # 6️⃣ Prepare Payload folder for IPA
       - run: mkdir Payload
         working-directory: build/ios/iphoneos
 
-      - run: mv Runner.app/ Payload
+      - run: mv Runner.app Payload/
         working-directory: build/ios/iphoneos
 
-      - name: Zip output
-        run: zip -qq -r -9 FlutterIpaExport.ipa Payload
+      # 7️⃣ Zip into IPA
+      - name: Package IPA
+        run: zip -qr FlutterIpaExport.ipa Payload
         working-directory: build/ios/iphoneos
 
-      - name: Upload IPA for testing
+      # 8️⃣ Upload IPA artifact
+      - name: Upload IPA for Sideloadly
         uses: actions/upload-artifact@v4
         with:
           name: FlutterIpaExport
