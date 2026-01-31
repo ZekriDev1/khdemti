@@ -1,4 +1,4 @@
-package com.example.khdemti
+package com.zekri.khdemti
 
 import io.flutter.embedding.android.FlutterActivity
 
