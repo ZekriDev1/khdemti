@@ -32,9 +32,8 @@ jobs:
         run: zip -qq -r -9 FlutterIpaExport.ipa Payload
         working-directory: build/ios/iphoneos
 
-      # ✅ Upload IPA as an artifact for testing
       - name: Upload IPA for testing
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: FlutterIpaExport
           path: build/ios/iphoneos/FlutterIpaExport.ipa
