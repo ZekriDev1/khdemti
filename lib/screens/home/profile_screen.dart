@@ -3,13 +3,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../models/user_model.dart';
 import '../auth/login_screen.dart';
 import '../admin/admin_dashboard.dart';
 import '../profile/edit_profile_screen.dart';
 import '../profile/saved_addresses_screen.dart';
-import '../profile/settings_screen.dart';
+import '../profile/settings_screen.dart'; // Keeping for language/etc
 import '../profile/become_provider_screen.dart';
 import '../profile/payment_methods_screen.dart';
+import '../home/notifications_screen.dart'; // NEW
+import '../home/favorites_screen.dart'; // NEW
+import '../home/ad_promotion_screen.dart'; // NEW
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -19,20 +23,23 @@ class ProfileScreen extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         final profile = auth.profile;
-        final name = profile?['full_name'] ?? 'Guest User';
-        final phone = profile?['phone'] ?? '+212 XXX XXX XXX';
+        final name = profile?.fullName ?? 'Guest User';
+        final phone = profile?.phone ?? '+212 XXX XXX XXX';
+        final role = profile?.role ?? UserRole.customer;
         final isAdmin = auth.isAdmin;
 
         return Scaffold(
           backgroundColor: AppTheme.backgroundOffWhite,
-          body: StreamBuilder<Map<String, dynamic>?>(
+          body: StreamBuilder<UserModel?>(
             stream: auth.profileStream,
             builder: (context, snapshot) {
               final liveProfile = snapshot.data ?? profile;
-              final liveName = liveProfile?['full_name'] ?? name;
-              final livePhone = liveProfile?['phone'] ?? phone;
+              final liveName = liveProfile?.fullName ?? name;
+              final livePhone = liveProfile?.phone ?? phone;
+              final liveRole = liveProfile?.role ?? role;
 
               return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
                 slivers: [
                   SliverAppBar(
                     expandedHeight: 220,
@@ -50,22 +57,28 @@ class ProfileScreen extends StatelessWidget {
                                   CircleAvatar(
                                     radius: 50,
                                     backgroundColor: Colors.white,
-                                    child: Text(
-                                      liveName[0].toUpperCase(),
-                                      style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppTheme.primaryRedDark),
-                                    ),
+                                    backgroundImage: liveProfile?.avatarUrl != null 
+                                      ? NetworkImage(liveProfile!.avatarUrl!) 
+                                      : null,
+                                    child: liveProfile?.avatarUrl == null 
+                                      ? Text(
+                                          liveName.isNotEmpty ? liveName[0].toUpperCase() : '?',
+                                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppTheme.primaryRedDark),
+                                        )
+                                      : null,
                                   ).animate().scale(duration: 500.ms, curve: Curves.elasticOut),
-                                  if (isAdmin)
-                                    Positioned(
+                                  if (liveProfile?.isVerified == true)
+                                      Positioned(
                                       bottom: 0,
                                       right: 0,
                                       child: Container(
                                         padding: const EdgeInsets.all(4),
                                         decoration: const BoxDecoration(
-                                          color: Colors.amber,
+                                          color: Colors.blue,
                                           shape: BoxShape.circle,
+                                          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)]
                                         ),
-                                        child: const Icon(Icons.star, size: 16, color: Colors.white),
+                                        child: const Icon(Icons.check, size: 16, color: Colors.white),
                                       ),
                                     ),
                                 ],
@@ -107,6 +120,25 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ).animate().fadeIn().shimmer(duration: 2000.ms, color: Colors.white24),
                           const SizedBox(height: 16),
+                          
+                          // PROVIDER SECTION
+                          if (liveRole == UserRole.provider)
+                             Column(
+                               children: [
+                                 _buildSection('Provider Tools', [
+                                  _ProfileTile(
+                                    icon: Icons.flash_on_rounded,
+                                    title: 'Promote Services',
+                                    subtitle: 'Boost visibility & get more clients',
+                                    iconColor: Colors.orange,
+                                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdPromotionScreen())),
+                                  ),
+                                   /* Add stats dashboard here later */
+                                 ]),
+                                 const SizedBox(height: 16),
+                               ],
+                             ),
+
                           _buildSection('Account', [
                             _ProfileTile(
                               icon: Icons.person_outline,
@@ -118,6 +150,11 @@ class ProfileScreen extends StatelessWidget {
                               title: 'Saved Addresses',
                               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedAddressesScreen())),
                             ),
+                             _ProfileTile(
+                              icon: Icons.bookmark_border,
+                              title: 'Favorites',
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesScreen())),
+                            ),
                             _ProfileTile(
                               icon: Icons.payment_outlined,
                               title: 'Payment Methods',
@@ -125,9 +162,9 @@ class ProfileScreen extends StatelessWidget {
                                 Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()));
                               },
                             ),
-                            if (profile?['role'] != 'provider' && profile?['role'] != 'admin' && profile?['role'] != 'super_admin')
+                            if (liveRole == UserRole.customer)
                               _ProfileTile(
-                                icon: Icons.work,
+                                icon: Icons.work_outline,
                                 title: 'Become a Provider',
                                 subtitle: 'Start earning today!',
                                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BecomeProviderScreen())),
@@ -138,18 +175,21 @@ class ProfileScreen extends StatelessWidget {
                             _ProfileTile(
                               icon: Icons.notifications_outlined,
                               title: 'Notifications',
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
                             ),
                             _ProfileTile(
                               icon: Icons.language,
                               title: 'Language',
-                              subtitle: 'Francais',
+                              subtitle: 'English / Français',
                               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
                             ),
                             _ProfileTile(
                               icon: Icons.help_outline,
                               title: 'Help & Support',
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+                              onTap: () { 
+                                // Placeholder
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Support Center coming soon!")));
+                              },
                             ),
                           ]),
                           const SizedBox(height: 16),
@@ -157,14 +197,16 @@ class ProfileScreen extends StatelessWidget {
                             _ProfileTile(
                               icon: Icons.info_outline,
                               title: 'About Khdemti',
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen())),
+                              onTap: () {
+                                showAboutDialog(context: context, applicationName: 'Khdemti', applicationVersion: '1.0.0');
+                              },
                             ),
                             _ProfileTile(
                               icon: Icons.star_outline,
                               title: 'Rate the App',
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Thank you for using Khdemti!')),
+                                  const SnackBar(content: Text('Thank you for rating us! ⭐⭐⭐⭐⭐')),
                                 );
                               },
                             ),
@@ -186,7 +228,8 @@ class ProfileScreen extends StatelessWidget {
                           const SizedBox(height: 32),
                           Text('Khdemti v1.0.0', style: TextStyle(color: Colors.grey[400])),
                           const SizedBox(height: 8),
-                          Text('Made with love in Morocco', style: TextStyle(color: Colors.grey[400])),
+                          Text('Made by ZEKRI', style: TextStyle(color: Colors.grey[400])),
+                           const SizedBox(height: 32),
                         ],
                       ),
                     ),
@@ -205,16 +248,24 @@ class ProfileScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(title, style: AppTheme.textTheme.titleLarge),
+          padding: const EdgeInsets.only(left: 12, bottom: 8),
+          child: Text(title, style: AppTheme.textTheme.titleMedium?.copyWith(color: AppTheme.textGrey, fontWeight: FontWeight.bold)),
         ),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
           ),
-          child: Column(children: children),
+          child: Column(
+            children: [
+              for (int i = 0; i < children.length; i++) ...[
+                children[i],
+                if (i != children.length - 1)
+                  const Divider(height: 1, indent: 50),
+              ]
+            ],
+          ),
         ),
       ],
     );
@@ -227,6 +278,7 @@ class _ProfileTile extends StatelessWidget {
   final String? subtitle;
   final VoidCallback onTap;
   final bool isDestructive;
+  final Color? iconColor;
 
   const _ProfileTile({
     required this.icon,
@@ -234,17 +286,33 @@ class _ProfileTile extends StatelessWidget {
     this.subtitle,
     required this.onTap,
     this.isDestructive = false,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final color = isDestructive ? Colors.red : AppTheme.textDark;
+    final iColor = iconColor ?? (isDestructive ? Colors.red : AppTheme.primaryRedDark);
+    
     return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w500)),
-      subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: iColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: iColor, size: 20),
+      ),
+      title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 15)),
+      subtitle: subtitle != null ? Text(subtitle!, style: TextStyle(fontSize: 12, color: Colors.grey[500])) : null,
+      trailing:_titleIcon(title),
       onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
+  }
+  
+  Widget _titleIcon(String title) {
+    if (title == 'Language') return const Text('Modifiable', style: TextStyle(color: Colors.grey, fontSize: 13));
+     return const Icon(Icons.chevron_right, color: Colors.grey, size: 20);
   }
 }

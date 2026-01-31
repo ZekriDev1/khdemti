@@ -14,25 +14,34 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late TextEditingController _emailController;
+  late TextEditingController _bioController;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     final profile = Provider.of<AuthProvider>(context, listen: false).profile;
-    _nameController = TextEditingController(text: profile?['full_name'] ?? '');
-    _emailController = TextEditingController(text: profile?['email'] ?? '');
+    _nameController = TextEditingController(text: profile?.fullName ?? '');
+    _bioController = TextEditingController(text: profile?.bio ?? '');
   }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
+    
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final currentProfile = auth.profile;
+    
+    if (currentProfile == null) return;
+
     try {
-      await Provider.of<AuthProvider>(context, listen: false).updateProfile({
-        'full_name': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-      });
+      final updatedProfile = currentProfile.copyWith(
+        fullName: _nameController.text.trim(),
+        bio: _bioController.text.trim(),
+      );
+
+      await auth.updateProfile(updatedProfile);
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated!'), backgroundColor: Colors.green),
@@ -40,11 +49,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ' + e.toString()), backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -54,8 +65,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: AppTheme.backgroundWhite,
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        backgroundColor: AppTheme.primaryRedDark,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -63,48 +76,59 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundColor: AppTheme.primaryRedDark.withOpacity(0.1),
-                child: const Icon(Icons.person, size: 60, color: AppTheme.primaryRedDark),
-              ).animate().scale(duration: 500.ms),
-              const SizedBox(height: 16),
-              TextButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Photo upload coming soon!')),
-                  );
-                },
-                icon: const Icon(Icons.camera_alt),
-                label: const Text('Change Photo'),
+              Stack(
+                children: [
+                   CircleAvatar(
+                    radius: 60,
+                    backgroundColor: AppTheme.primaryRedDark.withOpacity(0.1),
+                    child: const Icon(Icons.person, size: 60, color: AppTheme.primaryRedDark),
+                  ).animate().scale(duration: 500.ms),
+                   Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(color: AppTheme.primaryRedDark, shape: BoxShape.circle),
+                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                    ),
+                  )
+                ],
               ),
               const SizedBox(height: 32),
+              
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Full Name',
                   prefixIcon: Icon(Icons.person_outline),
                 ),
-                validator: (v) => v?.isEmpty == true ? 'Required' : null,
+                validator: (v) => v?.trim().isEmpty == true ? 'Required' : null,
               ),
               const SizedBox(height: 16),
+              
               TextFormField(
-                controller: _emailController,
+                controller: _bioController,
                 decoration: const InputDecoration(
-                  labelText: 'Email (optional)',
-                  prefixIcon: Icon(Icons.email_outlined),
+                  labelText: 'Bio (Optional)',
+                  prefixIcon: Icon(Icons.info_outline),
+                  alignLabelWithHint: true,
                 ),
-                keyboardType: TextInputType.emailAddress,
+                maxLines: 3,
               ),
+              
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryRedDark,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
                   onPressed: _isLoading ? null : _save,
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Save Changes', style: TextStyle(fontSize: 16)),
+                      : const Text('Save Changes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

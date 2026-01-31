@@ -10,10 +10,11 @@ class AppTheme {
   static const Color emeraldGreen = Color(0xFF50C878);
   static const Color saffronYellow = Color(0xFFF4C430);
   
-  static const Color backgroundWhite = Color(0xFFFFFFFF);
-  static const Color backgroundOffWhite = Color(0xFFF8F9FA); // Soft grey accent
-  static const Color textDark = Color(0xFF1A1A1A);
-  static const Color textGrey = Color(0xFF757575);
+  static const Color backgroundWhite = Color(0xFFF5F5F7); // Apple standard background
+  static const Color backgroundOffWhite = Color(0xFFFFFFFF); // Cards are white
+  static const Color glassWhite = Color(0xCCFFFFFF); // For glass morphism
+  static const Color textDark = Color(0xFF1D1D1F);
+  static const Color textGrey = Color(0xFF86868B);
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(

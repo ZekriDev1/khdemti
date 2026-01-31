@@ -2,6 +2,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/supabase_service.dart';
+import '../models/user_model.dart';
 
 class AuthProvider extends ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService();
@@ -9,8 +10,8 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  Map<String, dynamic>? _profile;
-  Map<String, dynamic>? get profile => _profile;
+  UserModel? _profile;
+  UserModel? get profile => _profile;
 
   bool _isAdmin = false;
   bool get isAdmin => _isAdmin;
@@ -27,11 +28,14 @@ class AuthProvider extends ChangeNotifier {
     
     if (isLocalAdmin) {
       _isAdmin = true;
-      _profile = {
-        'full_name': 'Super Admin',
-        'role': 'super_admin',
-        'phone': '+212691157363',
-      };
+      _profile = UserModel(
+        id: 'admin_local',
+        fullName: 'Akram Zekri',
+        phone: '+212691157363',
+        role: UserRole.super_admin,
+        createdAt: DateTime.now(),
+        isVerified: true,
+      );
       notifyListeners();
     }
 
@@ -44,11 +48,14 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_admin_logged_in', true);
     _isAdmin = true;
-    _profile = {
-      'full_name': 'Super Admin',
-      'role': 'super_admin',
-      'phone': '+212691157363',
-    };
+    _profile = UserModel(
+      id: 'admin_local',
+      fullName: 'Akram Zekri',
+      phone: '+212691157363',
+      role: UserRole.super_admin,
+      createdAt: DateTime.now(),
+      isVerified: true,
+    );
     notifyListeners();
   }
 
@@ -56,7 +63,7 @@ class AuthProvider extends ChangeNotifier {
     final supabaseProfile = await _supabaseService.getUserProfile();
     if (supabaseProfile != null) {
       _profile = supabaseProfile;
-      _isAdmin = await _supabaseService.isAdmin();
+      _isAdmin = supabaseProfile.role == UserRole.admin || supabaseProfile.role == UserRole.super_admin;
     }
     notifyListeners();
   }
@@ -84,11 +91,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateProfile(Map<String, dynamic> data) async {
+  Future<void> updateProfile(UserModel userModel) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _supabaseService.upsertProfile(data);
+      await _supabaseService.upsertProfile(userModel);
       await loadProfile();
     } finally {
       _isLoading = false;
@@ -105,5 +112,5 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Stream<Map<String, dynamic>?> get profileStream => _supabaseService.profileStream();
+  Stream<UserModel?> get profileStream => _supabaseService.profileStream();
 }

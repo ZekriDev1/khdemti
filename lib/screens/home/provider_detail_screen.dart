@@ -5,10 +5,12 @@ import 'package:intl/intl.dart';
 import '../../utils/theme.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/premium_ui.dart';
-import 'chat_screen.dart'; // We will link this soon
+import '../../widgets/apple_widgets.dart'; // Using new widgets
+import '../../models/user_model.dart';
+import 'chat_screen.dart';
 
 class ProviderDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> provider;
+  final UserModel provider; // Now strong typed
   final String? serviceId;
   final String? serviceName;
   
@@ -19,6 +21,15 @@ class ProviderDetailScreen extends StatefulWidget {
     this.serviceName,
   });
 
+  // Constructor for legacy Map support (temporary/bridge)
+  factory ProviderDetailScreen.fromMap(Map<String, dynamic> map, {String? serviceId, String? serviceName}) {
+    return ProviderDetailScreen(
+      provider: UserModel.fromJson(map),
+      serviceId: serviceId,
+      serviceName: serviceName,
+    );
+  }
+
   @override
   State<ProviderDetailScreen> createState() => _ProviderDetailScreenState();
 }
@@ -27,20 +38,35 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   final SupabaseService _service = SupabaseService();
   double _rating = 0.0;
   bool _isLoadingRating = true;
+  bool _isFavorite = false;
 
   @override
   void initState() {
     super.initState();
     _loadRating();
+    _checkFavorite();
   }
 
   Future<void> _loadRating() async {
     try {
-      _rating = await _service.getProviderRating(widget.provider['id']);
+      _rating = await _service.getProviderRating(widget.provider.id);
     } catch (e) {
       debugPrint('Error loading rating: ' + e.toString());
     }
-    setState(() => _isLoadingRating = false);
+    if (mounted) setState(() => _isLoadingRating = false);
+  }
+
+  Future<void> _checkFavorite() async {
+    final favorites = await _service.getFavorites();
+    if (mounted) setState(() => _isFavorite = favorites.contains(widget.provider.id));
+  }
+
+  Future<void> _toggleFavorite() async {
+    await _service.toggleFavorite(widget.provider.id);
+    setState(() => _isFavorite = !_isFavorite);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(_isFavorite ? 'Saved to Favorites' : 'Removed from Favorites'), duration: const Duration(milliseconds: 1000)),
+    );
   }
 
   void _showBookingSheet() {
@@ -94,7 +120,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text('Book Service', style: AppTheme.textTheme.headlineMedium),
-                Text(widget.provider['full_name'] ?? 'Provider', style: TextStyle(color: Colors.grey[600])),
+                Text(widget.provider.fullName ?? 'Provider', style: TextStyle(color: Colors.grey[600])),
                 
                 const SizedBox(height: 24),
                 const Text('Select Date & Time', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -104,7 +130,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                 Container(
                   height: 180,
                   decoration: BoxDecoration(
-                    color: Colors.grey[50], // Very subtle background
+                    color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.grey[200]!),
                   ),
@@ -149,8 +175,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: BouncyButton(
-                    onPressed: isSubmitting ? () {} : () async {
+                  child: AppleButton(
+                    onPressed: isSubmitting ? null : () async {
                       if (addressController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Please enter address'), backgroundColor: Colors.orange),
@@ -163,15 +189,14 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                       try {
                         await _service.createBooking(
                           serviceId: widget.serviceId ?? '',
-                          providerId: widget.provider['id'],
+                          providerId: widget.provider.id,
                           scheduledAt: selectedDateTime,
                           address: addressController.text,
                           notes: notesController.text,
                         );
 
-                        // Success Feedback on Button
                          setSheetState(() => isSuccess = true);
-                         await Future.delayed(600.ms); // Show success check for a bit
+                         await Future.delayed(600.ms); 
                          
                         if (mounted) {
                            Navigator.pop(context);
@@ -182,26 +207,11 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                       }
                     },
-                    child: AnimatedContainer(
-                      duration: 300.ms,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: isSuccess ? Colors.green : AppTheme.primaryRedDark,
-                        borderRadius: BorderRadius.circular(isSuccess ? 28 : 16),
-                         boxShadow: [
-                          BoxShadow(
-                            color: (isSuccess ? Colors.green : AppTheme.primaryRedDark).withOpacity(0.3), 
-                            blurRadius: 10, 
-                            offset: const Offset(0, 4)
-                          ),
-                        ],
-                      ),
-                      child: isSubmitting 
-                        ? (isSuccess 
-                            ? const Icon(Icons.check, color: Colors.white, size: 30).animate().scale()
-                            : const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
-                        : const Text('Confirm Booking', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
-                    ),
+                    child: isSubmitting 
+                      ? (isSuccess 
+                          ? const Icon(Icons.check, color: Colors.white, size: 30).animate().scale()
+                          : const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
+                      : const Text('Confirm Booking', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -247,8 +257,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final name = widget.provider['full_name'] ?? 'Provider';
-    final isOnline = widget.provider['is_online'] == true;
+    final name = widget.provider.fullName ?? 'Provider';
+    final isOnline = widget.provider.isOnline;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundOffWhite,
@@ -258,6 +268,12 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
             expandedHeight: 320,
             pinned: true,
             backgroundColor: AppTheme.primaryRedDark,
+            actions: [
+              IconButton(
+                onPressed: _toggleFavorite,
+                icon: Icon(_isFavorite ? Icons.bookmark : Icons.bookmark_border, color: Colors.white, size: 28),
+              )
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -282,10 +298,11 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                             child: CircleAvatar(
                               radius: 64,
                               backgroundColor: Colors.white,
-                              child: Text(
+                              backgroundImage: widget.provider.avatarUrl != null ? NetworkImage(widget.provider.avatarUrl!) : null,
+                              child: widget.provider.avatarUrl == null ? Text(
                                 name[0].toUpperCase(),
                                 style: const TextStyle(fontSize: 56, fontWeight: FontWeight.bold, color: AppTheme.primaryRedDark),
-                              ),
+                              ) : null,
                             ),
                           ).animate().scale(duration: 500.ms, curve: Curves.elasticOut),
                           Positioned(
@@ -355,7 +372,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                   Text('About', style: AppTheme.textTheme.headlineMedium),
                   const SizedBox(height: 12),
                   Text(
-                    widget.provider['bio'] ?? 'Professional service provider with years of experience. Committed to quality work and customer satisfaction.',
+                    widget.provider.bio ?? 'Professional service provider with years of experience. Committed to quality work and customer satisfaction.',
                     style: TextStyle(color: Colors.grey[600], height: 1.6, fontSize: 16),
                   ),
                   
@@ -395,37 +412,22 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           child: Row(
             children: [
               Expanded(
-                child: BouncyButton(
+                child: AppleButton(
+                   isGlass: true,
+                   backgroundColor: Colors.blueAccent,
                   onPressed: () {
                     // Navigate to Chat
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.cobaltBlue, width: 2),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(Icons.chat_bubble_outline, color: AppTheme.cobaltBlue),
-                  ),
+                  child: const Icon(Icons.chat_bubble_outline, color: AppTheme.cobaltBlue),
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 flex: 3,
-                child: BouncyButton(
+                child: AppleButton(
                   onPressed: _showBookingSheet,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryRedDark,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(color: AppTheme.primaryRedDark.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4)),
-                      ],
-                    ),
-                    child: const Text('Book Now', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  ),
+                  child: const Text('Book Now', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
