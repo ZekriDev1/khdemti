@@ -22,9 +22,14 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Disable Code Signing in Xcode Project
+        run: |
+          sed -i '' 's/CODE_SIGNING_ALLOWED = YES/CODE_SIGNING_ALLOWED = NO/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGNING_REQUIRED = YES/CODE_SIGNING_REQUIRED = NO/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic/CODE_SIGN_STYLE = Manual/g' ios/Runner.xcodeproj/project.pbxproj
+          
       - name: Build iOS App (No Codesign)
-        # We build with --no-codesign because we don't have certs in CI.
-        # This produces a Runner.app that we will package into an IPA.
+        # We build with --no-codesign and explicit flags to be safe
         run: flutter build ios --release --no-codesign
 
       - name: Create IPA File
