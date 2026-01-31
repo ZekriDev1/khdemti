@@ -27,7 +27,11 @@ class SupabaseService {
   Future<UserModel?> getUserProfile() async {
     final user = currentUser;
     if (user == null) return null;
-    final response = await client.from('profiles').select().eq('id', user.id).maybeSingle();
+    return getUserProfileById(user.id);
+  }
+
+  Future<UserModel?> getUserProfileById(String id) async {
+    final response = await client.from('profiles').select().eq('id', id).maybeSingle();
     if (response == null) return null;
     return UserModel.fromJson(response);
   }

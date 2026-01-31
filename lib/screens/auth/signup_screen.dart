@@ -6,6 +6,7 @@ import '../../widgets/apple_widgets.dart';
 import '../../providers/auth_provider.dart';
 import '../home/home_screen.dart';
 import '../onboarding/verification_screen.dart';
+import 'email_verification_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -16,14 +17,20 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
   final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  // Optional Phone
+  final _phoneController = TextEditingController();
+  
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _phoneController.dispose();
     _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -33,41 +40,65 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final rawPhone = _phoneController.text.trim();
-      final phone = '+212$rawPhone';
       final name = _nameController.text.trim();
-
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
       
-      // Send OTP
-      await authProvider.signInWithOtp(phone);
+      String? phone = _phoneController.text.trim();
+      if (phone.isEmpty) {
+        phone = null;
+      } else {
+        // Basic cleanup if needed, but saving as raw is fine too
+        phone = phone.replaceAll(RegExp(r'\s+'), '');
+      }
+
+      await Provider.of<AuthProvider>(context, listen: false).signUpWithEmail(
+        email: email,
+        password: password,
+        fullName: name,
+        phone: phone,
+      );
 
       if (mounted) {
-        // Navigate to OTP verification screen
-        // For now, we'll show a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('OTP sent to $phone'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
-        Navigator.push(
-          context,
+        // Navigate to Email Verification screen
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (context) => VerificationScreen(
-              phone: phone,
-              fullName: name,
-              age: 25, // Default age for now since we don't ask for it in simple signup
-            ),
+            builder: (context) => EmailVerificationScreen(email: email),
           ),
+          (Route<dynamic> route) => false,
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Signup Failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signUpGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      await Provider.of<AuthProvider>(context, listen: false).signInWithGoogle();
+      
+      if (mounted) {
+         // Navigate to Home directly after successful signup
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (Route<dynamic> route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Google Signup Failed: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -127,49 +158,67 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Full Name
-                        Text(
-                          'Full Name',
-                          style: AppTheme.textTheme.titleLarge?.copyWith(
-                            fontSize: 16,
-                          ),
-                        ),
+                        Text('Full Name', style: AppTheme.textTheme.titleLarge?.copyWith(fontSize: 16)),
                         const SizedBox(height: 12),
                         AppleTextField(
                           controller: _nameController,
                           hintText: 'Enter your full name',
                           prefixIcon: Icons.person_outline,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name';
-                            }
+                            if (value == null || value.isEmpty) return 'Please enter your name';
+                            return null;
+                          },
+                        ),
+                        
+                        const SizedBox(height: 24),
+
+                        // Email
+                        Text('Email Address', style: AppTheme.textTheme.titleLarge?.copyWith(fontSize: 16)),
+                        const SizedBox(height: 12),
+                        AppleTextField(
+                          controller: _emailController,
+                          hintText: 'name@example.com',
+                          prefixIcon: Icons.email_rounded,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Please enter your email';
+                            if (!value.contains('@')) return 'Invalid email';
                             return null;
                           },
                         ),
                         
                         const SizedBox(height: 24),
                         
-                        // Phone Number
-                        Text(
-                          'Phone Number',
-                          style: AppTheme.textTheme.titleLarge?.copyWith(
-                            fontSize: 16,
-                          ),
+                        // Password
+                        Text('Password', style: AppTheme.textTheme.titleLarge?.copyWith(fontSize: 16)),
+                        const SizedBox(height: 12),
+                        AppleTextField(
+                          controller: _passwordController,
+                          hintText: '••••••••',
+                          prefixIcon: Icons.lock_rounded,
+                          obscureText: true,
+                          validator: (value) {
+                             if (value == null || value.isEmpty) return 'Please enter your password';
+                             if (value.length < 6) return 'Password too short (min 6)';
+                             return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 24),
+                        
+                        // Optional Phone
+                        Row(
+                          children: [
+                            Text('Phone Number ', style: AppTheme.textTheme.titleLarge?.copyWith(fontSize: 16)),
+                            Text('(Optional)', style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         AppleTextField(
                           controller: _phoneController,
-                          hintText: '6 XX XX XX XX',
+                          hintText: '06 XX XX XX XX',
                           prefixIcon: Icons.phone_iphone_rounded,
                           keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your phone number';
-                            }
-                            if (!RegExp(r'^[67]\d{8}$').hasMatch(value)) {
-                              return 'Invalid Moroccan phone number';
-                            }
-                            return null;
-                          },
                         ),
                       ],
                     ),
@@ -203,6 +252,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
                   
+                  const SizedBox(height: 16),
+                  
+                  // Google Sign Up Button
+                  SizedBox(
+                    height: 56,
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _signUpGoogle,
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        side: const BorderSide(color: Colors.grey),
+                        backgroundColor: Colors.white,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.g_mobiledata, size: 32, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Sign up with Google',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 450.ms),
+
                   const SizedBox(height: 24),
                   
                   // Already have account

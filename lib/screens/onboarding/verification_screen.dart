@@ -40,11 +40,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
       await authProvider.verifyOtp(widget.phone, otp);
       
       // 2. Create/Update Profile with Info
-      // We need to ensure we have the user ID now
-      final user = SupabaseService().currentUser;
+      // We need to ensure we have the user ID now (from Firebase)
+      final user = authProvider.user;
       if (user != null) {
         await authProvider.updateProfile(UserModel(
-          id: user.id,
+          id: user.uid,
           phone: widget.phone,
           fullName: widget.fullName,
           age: widget.age,

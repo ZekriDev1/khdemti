@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "137053449392",
+    "project_id": "khdemti-ma",
+    "storage_bucket": "khdemti-ma.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137053449392:android:8805d7f7c7b9cc3c235f75",
+        "android_client_info": {
+          "package_name": "com.zekri.khdemti"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP1OLtlPJyekJNMKi8k81AUaEP4jw-LWc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
