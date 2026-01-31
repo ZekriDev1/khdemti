@@ -83,8 +83,8 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
   }
 
   Widget _buildOverview() {
-    final customers = _users.where((u) => u.role == UserRole.customer).length; // Updated for UserModel
-    final providers = _users.where((u) => u.role == UserRole.provider).length; // Updated for UserModel
+    final customers = _users.where((u) => u.role == UserRole.user).length; // Updated for UserModel
+    final providers = _users.where((u) => u.role == UserRole.worker).length; // Updated for UserModel
     final pending = _bookings.where((b) => b['status'] == 'pending').length;
     final completed = _bookings.where((b) => b['status'] == 'completed').length;
 
@@ -177,7 +177,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                 children: [
                   Text(user.phone ?? ''),
                   if (user.age != null) Text('Age: ' + user.age.toString()),
-                  if (user.role == UserRole.provider) 
+                  if (user.role == UserRole.worker) 
                     Row(children: [const Icon(Icons.star, size: 14, color: Colors.amber), Text(' ' + rating.toString())]),
                 ],
               ),
@@ -285,9 +285,8 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
   Color _getRoleColor(UserRole? role) { // Updated for UserModel
     switch (role) {
       case UserRole.admin:
-      case UserRole.super_admin:
         return AppTheme.primaryRedDark;
-      case UserRole.provider:
+      case UserRole.worker:
         return AppTheme.emeraldGreen;
       default:
         return AppTheme.cobaltBlue;

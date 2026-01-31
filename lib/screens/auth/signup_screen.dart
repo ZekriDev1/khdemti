@@ -5,6 +5,7 @@ import '../../utils/theme.dart';
 import '../../widgets/apple_widgets.dart';
 import '../../providers/auth_provider.dart';
 import '../home/home_screen.dart';
+import '../onboarding/verification_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -39,7 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
       // Send OTP
-      await authProvider.sendOtp(phone);
+      await authProvider.signInWithOtp(phone);
 
       if (mounted) {
         // Navigate to OTP verification screen
@@ -51,8 +52,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         );
         
-        // TODO: Navigate to OTP screen with name parameter
-        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerificationScreen(
+              phone: phone,
+              fullName: name,
+              age: 25, // Default age for now since we don't ask for it in simple signup
+            ),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

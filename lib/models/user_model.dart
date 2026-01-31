@@ -5,10 +5,20 @@ enum UserRole {
   admin;      // Developer/God mode
 
   String toStringValue() {
-    return toString().split('.').last;
+    switch (this) {
+      case UserRole.worker:
+        return 'provider';
+      case UserRole.user:
+        return 'customer';
+      default:
+        return toString().split('.').last;
+    }
   }
 
   static UserRole fromString(String value) {
+    if (value == 'provider') return UserRole.worker;
+    if (value == 'customer') return UserRole.user;
+    
     return UserRole.values.firstWhere(
       (e) => e.toString().split('.').last == value,
       orElse: () => UserRole.user,

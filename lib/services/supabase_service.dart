@@ -194,7 +194,7 @@ class SupabaseService {
   // ADMIN
   Future<bool> isAdmin() async {
     final profile = await getUserProfile();
-    return profile?.role == UserRole.admin || profile?.role == UserRole.super_admin;
+    return profile?.role == UserRole.admin;
   }
 
   Future<List<UserModel>> getAllUsers() async {

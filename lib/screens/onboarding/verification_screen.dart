@@ -48,7 +48,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
           phone: widget.phone,
           fullName: widget.fullName,
           age: widget.age,
-          role: UserRole.customer,
+          role: UserRole.user,
           isVerified: true, // AUTO-VERIFY on successful OTP
           createdAt: DateTime.now(),
         ));

@@ -89,7 +89,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendOtp(String phone) async {
+  Future<void> signInWithOtp(String phone) async {
     _isLoading = true;
     notifyListeners();
     try {

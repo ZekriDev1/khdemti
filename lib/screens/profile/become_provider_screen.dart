@@ -51,7 +51,7 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
           currentProfile = UserModel(
             id: user.id,
             email: user.email ?? '',
-            role: UserRole.provider,
+            role: UserRole.worker,
             fullName: _nameController.text,
             age: int.tryParse(_ageController.text),
             bio: _bioController.text,
@@ -60,7 +60,7 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
       } else {
          // Update existing profile fields
          currentProfile = currentProfile.copyWith(
-           role: UserRole.provider,
+           role: UserRole.worker,
            fullName: _nameController.text,
            age: int.tryParse(_ageController.text),
            bio: _bioController.text,

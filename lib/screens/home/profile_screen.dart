@@ -25,7 +25,7 @@ class ProfileScreen extends StatelessWidget {
         final profile = auth.profile;
         final name = profile?.fullName ?? 'Guest User';
         final phone = profile?.phone ?? '+212 XXX XXX XXX';
-        final role = profile?.role ?? UserRole.customer;
+        final role = profile?.role ?? UserRole.user;
         final isAdmin = auth.isAdmin;
 
         return Scaffold(
@@ -122,7 +122,7 @@ class ProfileScreen extends StatelessWidget {
                           const SizedBox(height: 16),
                           
                           // PROVIDER SECTION
-                          if (liveRole == UserRole.provider)
+                          if (liveRole == UserRole.worker)
                              Column(
                                children: [
                                  _buildSection('Provider Tools', [
@@ -162,7 +162,7 @@ class ProfileScreen extends StatelessWidget {
                                 Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()));
                               },
                             ),
-                            if (liveRole == UserRole.customer)
+                            if (liveRole == UserRole.user)
                               _ProfileTile(
                                 icon: Icons.work_outline,
                                 title: 'Become a Provider',
