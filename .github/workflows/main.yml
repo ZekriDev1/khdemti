@@ -1,48 +1,44 @@
-name: iOS-IPA-Build
+name: Build iOS IPA
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual trigger from Actions tab
+  push:
+    branches: [ "main", "master" ]
 
 jobs:
   build-ios:
-    name: 🎉 Build iOS IPA for Sideloadly
+    name: Build iOS IPA
     runs-on: macos-latest
-
     steps:
-      # 1️⃣ Checkout your repo
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      # 2️⃣ Set up Flutter
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           architecture: x64
 
-      # 3️⃣ Get Flutter dependencies
-      - run: flutter pub get
+      - name: Install Dependencies
+        run: flutter pub get
 
-      # 4️⃣ Update CocoaPods repos
-      - run: pod repo update
-        working-directory: ios
+      - name: Build iOS App (No Codesign)
+        # We build with --no-codesign because we don't have certs in CI.
+        # This produces a Runner.app that we will package into an IPA.
+        run: flutter build ios --release --no-codesign
 
-      # 5️⃣ Build iOS app without signing (for Sideloadly)
-      - run: flutter build ios --release --no-codesign
+      - name: Create IPA File
+        # Sideloadly expects an .ipa file, which is just a zipped "Payload" folder containing the .app
+        run: |
+          mkdir Payload
+          # Move the built .app into Payload folder
+          mv build/ios/iphoneos/Runner.app Payload/
+          # Zip it up
+          zip -r khdemti.ipa Payload
 
-      # 6️⃣ Prepare Payload folder for IPA
-      - run: mkdir Payload
-        working-directory: build/ios/iphoneos
-
-      - run: mv Runner.app Payload/
-        working-directory: build/ios/iphoneos
-
-      # 7️⃣ Zip into IPA
-      - name: Package IPA
-        run: zip -qr FlutterIpaExport.ipa Payload
-        working-directory: build/ios/iphoneos
-
-      # 8️⃣ Upload IPA artifact
-      - name: Upload IPA for Sideloadly
+      - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FlutterIpaExport
-          path: build/ios/iphoneos/FlutterIpaExport.ipa
+          name: Khdemti_IPA
+          path: khdemti.ipa
+          retention-days: 5
