@@ -31,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
       _profile = UserModel(
         id: 'admin_local',
         fullName: 'Akram Zekri',
-        phone: '+212691157363',
+        phone: '+212613415008',
         role: UserRole.super_admin,
         createdAt: DateTime.now(),
         isVerified: true,
@@ -51,7 +51,7 @@ class AuthProvider extends ChangeNotifier {
     _profile = UserModel(
       id: 'admin_local',
       fullName: 'Akram Zekri',
-      phone: '+212691157363',
+      phone: '+212613415008',
       role: UserRole.super_admin,
       createdAt: DateTime.now(),
       isVerified: true,

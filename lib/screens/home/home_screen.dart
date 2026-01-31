@@ -4,11 +4,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../utils/theme.dart';
 import '../../utils/data.dart';
 import '../../widgets/zellij_background.dart';
 import '../../widgets/premium_ui.dart'; // Keeping for old widgets if needed
 import '../../widgets/apple_widgets.dart'; // NEW
+import '../../widgets/promo_carousel.dart';
 import '../../models/ad_model.dart';
 import '../../services/supabase_service.dart';
 import 'search_screen.dart';
@@ -20,6 +22,7 @@ import 'service_providers_screen.dart';
 import 'notifications_screen.dart';
 import 'ad_promotion_screen.dart';
 import 'promo_screen.dart';
+import '../onboarding/welcome_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -141,22 +144,23 @@ class _HomeContent extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Consumer<AuthProvider>(
-                                      builder: (context, auth, _) {
-                                        // FIXED: Using strong typing
-                                        final name = auth.profile?.fullName?.split(' ').first ?? "Marhba";
-                                        return Text("Hello, $name 👋", 
-                                          style: GoogleFonts.outfit(color: AppTheme.primaryRedDark, fontSize: 18, fontWeight: FontWeight.w500));
-                                      },
-                                    ),
-                                    Text(
-                                      "Find a Service",
-                                      style: GoogleFonts.outfit(color: Colors.black87, fontSize: 32, fontWeight: FontWeight.w800),
-                                    ),
-                                  ],
+                                Consumer<AuthProvider>(
+                                  builder: (context, auth, _) {
+                                    final profile = auth.profile;
+                                    final name = profile?.fullName?.split(' ').first ?? "Marhba";
+
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Hello, $name 👋", 
+                                          style: GoogleFonts.outfit(color: AppTheme.primaryRedDark, fontSize: 18, fontWeight: FontWeight.w500)),
+                                        Text(
+                                          "Find a Service",
+                                          style: GoogleFonts.outfit(color: Colors.black87, fontSize: 32, fontWeight: FontWeight.w800),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                                 AppleButton(
                                   width: 48,
@@ -178,6 +182,7 @@ class _HomeContent extends StatelessWidget {
                 ),
               ),
             ),
+
             
             // Search Bar Area
             SliverToBoxAdapter(
@@ -211,102 +216,46 @@ class _HomeContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // SPONSORED ADS SECTION
-                    FutureBuilder<List<AdModel>>(
-                      future: SupabaseService().getAds(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                          // Show horizontally scrolling ads
-                          return Container(
-                            height: 140,
-                            margin: const EdgeInsets.only(bottom: 24),
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: snapshot.data!.length,
-                              separatorBuilder: (_,__) => const SizedBox(width: 16),
-                              itemBuilder: (context, index) {
-                                final ad = snapshot.data![index];
-                                return Container(
-                                  width: 280,
-                                  decoration: BoxDecoration(
-                                    gradient: AppTheme.primaryGradient,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(color: AppTheme.primaryRedDark.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))
-                                    ],
-                                  ),
-                                  padding: const EdgeInsets.all(20),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.star, color: Colors.yellow, size: 16),
-                                          const SizedBox(width: 4),
-                                          Text("SPONSORED", style: GoogleFonts.inter(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      Text(ad.title, style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        ad.description, 
-                                        style: GoogleFonts.inter(color: Colors.white.withOpacity(0.9), fontSize: 13), 
-                                        maxLines: 2, 
-                                        overflow: TextOverflow.ellipsis
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        }
-                        // Default Promo if no ads
-                        return GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PromoScreen())),
-                          child: AppleCard(
-                            padding: const EdgeInsets.all(0),
-                            child: Container(
-                              height: 160,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [AppTheme.primaryRedDark, Color(0xFFE53935)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    right: -20, bottom: -20,
-                                    child: Icon(Icons.local_offer, size: 180, color: Colors.white.withOpacity(0.1)),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(24.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
-                                          child: const Text("PROMO", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Text("25% OFF", style: GoogleFonts.outfit(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, height: 1.0)),
-                                        const Text("Home Cleaning", style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500)),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                    // PREMIUM PROMO CAROUSEL
+                    PromoCarouselSlider(
+                      promos: [
+                        PromoCard(
+                          badge: 'PROMO',
+                          title: '25% OFF',
+                          subtitle: 'Home Cleaning',
+                          gradient: const LinearGradient(
+                            colors: [AppTheme.primaryRedDark, Color(0xFFE53935)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        );
-                      },
+                          icon: Icons.cleaning_services,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PromoScreen())),
+                        ),
+                        PromoCard(
+                          badge: 'SPECIAL',
+                          title: '30% OFF',
+                          subtitle: 'Plumbing Services',
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          icon: Icons.plumbing,
+                          onTap: () {},
+                        ),
+                        PromoCard(
+                          badge: 'LIMITED',
+                          title: '20% OFF',
+                          subtitle: 'Electrical Work',
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF6F00), Color(0xFFE65100)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          icon: Icons.electric_bolt,
+                          onTap: () {},
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 32),

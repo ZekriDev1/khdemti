@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui'; // For verifying glass effect
 import '../utils/theme.dart';
 
@@ -182,6 +183,138 @@ class AppleGlassContainer extends StatelessWidget {
             child: child,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// iOS-style Text Field with soft background and no borders
+class AppleTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final IconData? prefixIcon;
+  final TextInputType keyboardType;
+  final bool obscureText;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final Widget? suffixIcon;
+  final int maxLines;
+
+  const AppleTextField({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    this.prefixIcon,
+    this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+    this.validator,
+    this.onChanged,
+    this.suffixIcon,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        validator: validator,
+        onChanged: onChanged,
+        maxLines: maxLines,
+        style: const TextStyle(fontSize: 16, color: AppTheme.textDark),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppTheme.textGrey) : null,
+          suffixIcon: suffixIcon,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          focusedErrorBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+      ),
+    );
+  }
+}
+
+/// Simple iOS-style Header (non-sliver)
+class AppleHeader extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final bool showBack;
+
+  const AppleHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.showBack = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (showBack)
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppTheme.textDark),
+                    ),
+                  ),
+                ),
+              if (trailing != null) trailing!,
+            ],
+          ),
+          if (showBack || trailing != null) const SizedBox(height: 16),
+          Text(
+            title,
+            style: AppTheme.textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              subtitle!,
+              style: AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.textGrey),
+            ),
+          ],
+        ],
       ),
     );
   }

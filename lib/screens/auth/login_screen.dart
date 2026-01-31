@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../utils/theme.dart';
 import '../../providers/auth_provider.dart';
-import '../../widgets/zellij_background.dart';
+import '../../widgets/apple_widgets.dart'; // Using Apple Widgets
 import '../home/home_screen.dart';
 import 'verify_otp_screen.dart';
 
@@ -30,10 +30,10 @@ class _LoginScreenContentState extends State<_LoginScreenContent> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final rawPhone = _phoneController.text.trim().replaceAll(RegExp(r'^0+'), '');
-    final phone = '+212' + rawPhone;
+    final phone = '+212$rawPhone';
     
     // BYPASS & PERSIST: Skip OTP for super admin number
-    if (rawPhone == '691157363') {
+    if (rawPhone == '613415008') {
       await Provider.of<AuthProvider>(context, listen: false).loginAdminLocally();
       if (mounted) {
         Navigator.pushReplacement(
@@ -55,7 +55,7 @@ class _LoginScreenContentState extends State<_LoginScreenContent> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ' + e.toString())),
+          SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
     }
@@ -67,85 +67,107 @@ class _LoginScreenContentState extends State<_LoginScreenContent> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundWhite,
-      body: ZellijBackground(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(Icons.handyman_rounded, size: 80, color: AppTheme.primaryRedDark)
-                  .animate().scale(duration: 600.ms, curve: Curves.elasticOut),
-              const SizedBox(height: 24),
-              Text(
-                'Welcome to Khdemti',
-                textAlign: TextAlign.center,
-                style: AppTheme.textTheme.displaySmall,
-              ).animate().fadeIn().moveY(begin: 20, end: 0),
-              const SizedBox(height: 8),
-              Text(
-                'Enter your phone number to continue',
-                textAlign: TextAlign.center,
-                style: AppTheme.textTheme.bodyMedium,
-              ).animate().fadeIn(delay: 200.ms),
-              const SizedBox(height: 48),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Phone Number', style: AppTheme.textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      style: const TextStyle(fontSize: 18, letterSpacing: 1.2),
-                      decoration: const InputDecoration(
-                        prefixText: '+212 ',
-                        prefixStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                        hintText: '6 XX XX XX XX',
-                        prefixIcon: Icon(Icons.phone_iphone_rounded),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your number';
-                        if (value.length < 9) return 'Invalid number';
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(delay: 400.ms),
-              const SizedBox(height: 32),
-              SizedBox(
-                height: 56,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'Send Code',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFFFF0F0), AppTheme.backgroundWhite],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Logo
+                  Center(
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryRedDark.withOpacity(0.2),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
                           ),
+                        ],
+                      ),
+                      child: const Icon(Icons.handyman_rounded, size: 50, color: AppTheme.primaryRedDark),
+                    ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
                   ),
-                ),
-              ).animate().fadeIn(delay: 600.ms),
-              const SizedBox(height: 24),
-              const Text(
-                'By continuing, you agree to our Terms & Conditions.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                  
+                  const SizedBox(height: 32),
+                  
+                  Text(
+                    'Welcome Back',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800),
+                  ).animate().fadeIn().moveY(begin: 10, end: 0),
+                  
+                  const SizedBox(height: 8),
+                  
+                  Text(
+                    'Login to ask for a service',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.textTheme.bodyMedium,
+                  ).animate().fadeIn(delay: 200.ms),
+                  
+                  const SizedBox(height: 48),
+                  
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Phone Number', style: AppTheme.textTheme.titleLarge?.copyWith(fontSize: 16)),
+                        const SizedBox(height: 12),
+                        AppleTextField(
+                          controller: _phoneController,
+                          hintText: '6 XX XX XX XX',
+                          prefixIcon: Icons.phone_iphone_rounded,
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                             if (value == null || value.isEmpty) return 'Please enter your number';
+                             if (value.length < 9) return 'Invalid number';
+                             return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(delay: 400.ms),
+                  
+                  const SizedBox(height: 32),
+                  
+                  SizedBox(
+                    height: 56,
+                    child: AppleButton(
+                      onPressed: isLoading ? null : _submit,
+                      child: isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Send Code',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                    ),
+                  ).animate().fadeIn(delay: 600.ms),
+                  
+                  const SizedBox(height: 24),
+                  
+                  const Text(
+                    'By continuing, you agree to our Terms & Conditions.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
